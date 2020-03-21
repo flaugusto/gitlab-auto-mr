@@ -8,14 +8,16 @@ if [ -z "$PERSONAL_ACCESS_TOKEN" ]; then
   exit 1
 fi
 
+if [ $# -eq 0 ]; then
+    echo "Lack of parameters. Usage: $0 <release|develop> TwikiName(Gatekeeper)"
+    exit 1;
+fi 
+
 # Extract the CI_PROJECT_URL where the server is running, and add the URL to the APIs
 [[ $CI_PROJECT_URL =~ ^https?://[^/]+ ]] && CI_PROJECT_URL="${BASH_REMATCH[0]}/api/v4/projects/"
 
-
-if [ $# -eq 0 ]; then
-    echo "Invalid parameter. Usage: $0 <release|develop>"
-    exit 1;
-fi 
+# Get the Gatekeeper ID (passed as argument)
+GK=`curl --silent "${BASH_REMATCH[0]}/api/v4/users?username=${2}" | jq --raw-output .[0].id`
 
 # Patterns
 feature="^feature-[A-z]{3}-[0-9]+_.+"
@@ -42,7 +44,7 @@ BODY="{
     \"source_branch\": \"${CI_COMMIT_REF_NAME}\",
     \"target_branch\": \"${1}\",
     \"title\": \"WIP: ${MSG}\",
-    \"assignee_id\":\"${GITLAB_USER_ID}\"";
+    \"assignee_id\":\"${GK}\"";
 
 if [ $1 = "develop" ]; then
     BODY="${BODY},

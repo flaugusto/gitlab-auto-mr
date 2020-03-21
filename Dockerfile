@@ -3,7 +3,8 @@ FROM alpine:3.6
 RUN apk add --no-cache \
   bash \
   curl \
-  grep 
+  grep \
+  jq
 
 COPY autoMergeRequest.sh /usr/bin
 
