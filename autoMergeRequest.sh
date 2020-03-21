@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Auto Merge Request creation script
-# version 1.0
+# version 1.0.10
 
 if [ -z "$PERSONAL_ACCESS_TOKEN" ]; then
   echo "GitLab Private Access Token not set."
