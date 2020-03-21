@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Auto Merge Request creation script
-# version 1.0.10
+# version 1.1
 
 if [ -z "$PERSONAL_ACCESS_TOKEN" ]; then
   echo "GitLab Private Access Token not set."
@@ -28,6 +28,8 @@ release="^release-[A-z]{3}_[0-9]{6}"
 if [[ $CI_COMMIT_REF_NAME =~ $feature ]]; then
     MSG=${BASH_REMATCH[0]/feature-/}
     MSG=${MSG/_/: }
+    DESC=${MSG#*:}
+    MSG=`sed -E 's/([a-z0-9])([A-Z])/\1 \2/g' <<< ${DESC}`
 elif [[ $CI_COMMIT_REF_NAME =~ $featMOP ]]; then
     MSG=${BASH_REMATCH[0]/feature-/}
     MSG="Pacote ${MSG/_/ }"
@@ -60,7 +62,7 @@ BODY="${BODY}
 # Require a list of all the merge request and take a look if there is already
 # one with the same source branch
 LISTMR=`curl --silent "${CI_PROJECT_URL}${CI_PROJECT_ID}/merge_requests?state=opened" --header "PRIVATE-TOKEN:${PERSONAL_ACCESS_TOKEN}"`;
-COUNTBRANCHES=`grep -o "\"source_branch\":\"${CI_COMMIT_REF_NAME}\"" <<< ${LISTMR} S| wc -l`;
+COUNTBRANCHES=`grep -o "\"source_branch\":\"${CI_COMMIT_REF_NAME}\"" <<< ${LISTMR} | wc -l`;
 
 # No MR found, let's create a new one
 if [ ${COUNTBRANCHES} -eq "0" ]; then
@@ -69,7 +71,7 @@ if [ ${COUNTBRANCHES} -eq "0" ]; then
         --header "Content-Type: application/json" \
         --data "${BODY}";
 
-    echo -e "\n\nOpened a new merge request: 'WIP: ${MSG}' and assigned to you.\n";
+    echo -e "\n\nOpened a new merge request: 'WIP: ${MSG}' and assigned to GK (${2}).\n";
     exit;
 fi
 
