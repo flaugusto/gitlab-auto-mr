@@ -9,14 +9,14 @@ if [ -z "$PERSONAL_ACCESS_TOKEN" ]; then
 fi
 
 if [ $# -eq 0 ]; then
-    echo "Lack of parameters. Usage: $0 <release|develop> TwikiName(Gatekeeper)"
+    echo "Lack of parameters. Usage: $0 <release|develop> GitLabUsername (Maintainer)"
     exit 1;
 fi 
 
 # Extract the CI_PROJECT_URL where the server is running, and add the URL to the APIs
 [[ $CI_PROJECT_URL =~ ^https?://[^/]+ ]] && CI_PROJECT_URL="${BASH_REMATCH[0]}/api/v4/projects/"
 
-# Get the Gatekeeper ID (passed as argument)
+# Get the user ID to assign the merge request to (passed as argument)
 GK=`curl --silent "${BASH_REMATCH[0]}/api/v4/users?username=${2}" | jq --raw-output .[0].id`
 
 # Patterns
